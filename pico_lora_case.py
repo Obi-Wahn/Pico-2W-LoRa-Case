@@ -48,17 +48,15 @@ LORA_OFFSET   = 0.6   # LoRa-Platine beginnt so weit hinter der USB-Buchsenfront
 SIDE_CLR      = 0.3   # seitliche Luft um die Platinen
 
 # --- USB-Öffnung (großzügig für dicke Stecker) ---
-# Nur der Metallteil des Micro-USB-Steckers (ca. 7 x 2 mm, 6,6 mm lang) steckt in der Wand,
-# die Kunststoff-Umspritzung bleibt außen. Darüber ein durchgehender, voll dicker Rand.
-USB_OPEN_W    = 12.0
-USB_OPEN_H    = 7.0
-USB_CHAMFER   = 0.8   # Fase außen an der Öffnung (Einführhilfe)
-USB_RIM       = 2.5   # Höhe des durchgehenden Randes über der Öffnung
-USB_POCKET    = False # Außentasche (Wand um die Buchse ausgedünnt), nur für ungewöhnlich kurze Stecker
-USB_POCKET_W  = 19.0
-USB_POCKET_H  = 15.0
-USB_POCKET_REST = 1.0
-USB_OPEN_TOP  = False # Alternative: Öffnung als U nach oben offen, der Deckel schließt sie
+# Die Kunststoff-Umspritzung des Steckers beginnt nur ~1,7 mm vor der Buchse (an deinem Foto
+# gemessen, Umspritzung 11,7 mm breit) und taucht damit in die Wand ein. Die Öffnung ist deshalb
+# so groß wie die Umspritzung plus Luft und geht durch die ganze Wand; darüber bleibt ein
+# durchgehender, voll dicker Rand stehen.
+USB_OPEN_W    = 13.5
+USB_OPEN_H    = 10.5
+USB_CHAMFER   = 0.6   # Fase außen an der Öffnung (Einführhilfe)
+USB_RIM       = 2.0   # Höhe des durchgehenden Randes über der Öffnung (volle Wandstärke)
+USB_PLUG_GAP  = 1.7   # sichtbares Metall zwischen Buchse und Umspritzung (für die Prüfung)
 
 # --- Akku: Waveshare 851451 (8,5 x 14 x 51 mm, gemessen inkl. Falz) ---
 BAT_L = 52.5          # Länge inkl. gefalteter Kopfseite
@@ -136,7 +134,7 @@ BAY_W    = BAT_FOOT + BAT_CLR
 IN_W     = BAY_Y0 + BAY_W
 IN_L     = max(LORA_X1, PICO_X0 + PICO_L) + ANT_SPACE
 IN_H     = max(PICO_TOP + PICO_COMP_H + TOP_CLR,
-               USB_CZ + USB_OPEN_H / 2 + (1.0 if USB_OPEN_TOP else USB_RIM))
+               USB_CZ + USB_OPEN_H / 2 + USB_RIM)
 
 OUT_L = IN_L + 2 * WALL
 OUT_W = IN_W + 2 * WALL
@@ -232,15 +230,12 @@ def make_box():
         return rrect(y0, z0, y1, z1, r).extrude(t).rotate([90, 0, 90]).translate([x0, 0, 0])
     uy0, uy1 = BOARD_YC - USB_OPEN_W / 2, BOARD_YC + USB_OPEN_W / 2
     uz0 = USB_CZ - USB_OPEN_H / 2
-    uz1 = IN_H + 3.0 if USB_OPEN_TOP else USB_CZ + USB_OPEN_H / 2
+    uz1 = USB_CZ + USB_OPEN_H / 2
     b -= yz_slab(uy0, uz0, uy1, uz1, 1.5, -WALL - 1, WALL + 2)
     if USB_CHAMFER > 0:
         c = USB_CHAMFER
         b -= Manifold.batch_hull([yz_slab(uy0 - c, uz0 - c, uy1 + c, uz1 + c, 1.5 + c, -WALL - 0.5, 0.5),
                                   yz_slab(uy0, uz0, uy1, uz1, 1.5, -WALL + c, 0.01)])
-    if USB_POCKET:
-        b -= yz_slab(BOARD_YC - USB_POCKET_W / 2, USB_CZ - USB_POCKET_H / 2, BOARD_YC + USB_POCKET_W / 2,
-                     USB_CZ + USB_POCKET_H / 2, 2.5, -WALL - 1, WALL - USB_POCKET_REST + 1)
 
     # LED-Lichtschlitz in der Stirnwand (Höhe der LoRa-Oberseite)
     if LED_SLOT:
@@ -285,9 +280,6 @@ def make_lid():
     inner = rbox(FIT + lip_t, FIT + lip_t, z0 - lip_h - 1, IN_L - FIT - lip_t, IN_W - FIT - lip_t, z0 + 1,
                  max(r_in - lip_t, 0.3))
     lip = outer - inner
-    # Lippe nur aussparen, wenn die USB-Öffnung (oder die Tasche) bis an die Oberkante reicht
-    if USB_OPEN_TOP or (USB_POCKET and USB_CZ + USB_POCKET_H / 2 > IN_H - lip_h):
-        lip -= box(-1, BOARD_YC - USB_POCKET_W / 2, z0 - lip_h - 1, 6.5, BOARD_YC + USB_POCKET_W / 2, z0 + 0.5)
     lid += lip
 
     # Rastnasen
@@ -396,8 +388,10 @@ def make_dummies():
     d["ipex"] = box(LORA_X0 + 46.2, BOARD_Y0 + 3.6, LORA_Z + LORA_PCB, LORA_X0 + 49.2,
                     BOARD_Y0 + 6.6, LORA_Z + LORA_PCB + 1.5)
     # typischer Micro-USB-Stecker (Umspritzung 12 x 9 mm)
-    d["usb_plug"] = (box(-6.6 + USB_FACE_X, BOARD_YC - 3.5, USB_CZ - 0.9, USB_FACE_X, BOARD_YC + 3.5, USB_CZ + 0.9)
-                     + box(-25, BOARD_YC - 6, USB_CZ - 4.5, -6.6 + USB_FACE_X, BOARD_YC + 6, USB_CZ + 4.5))
+    # Micro-USB-Stecker: Metall bis zur Buchse, Umspritzung (dick angenommen: 12 x 9 mm) davor
+    xm = USB_FACE_X - USB_PLUG_GAP
+    d["usb_plug"] = (box(xm, BOARD_YC - 3.5, USB_CZ - 0.9, USB_FACE_X, BOARD_YC + 3.5, USB_CZ + 0.9)
+                     + box(-25, BOARD_YC - 6, USB_CZ - 4.5, xm, BOARD_YC + 6, USB_CZ + 4.5))
     return d
 
 
