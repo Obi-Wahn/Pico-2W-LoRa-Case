@@ -29,7 +29,7 @@ Außenmaße: **ca. 72 × 37 × 33 mm** (L × B × H)
 
 ## Aufbau des Gehäuses
 
-- **USB:** großzügige, nach oben offene Öffnung mit außen ausgedünnter Wand, damit auch dicke Micro-USB-Stecker passen. Den oberen Rand bildet der Deckel; so bleibt kein dünner, bruchgefährdeter Steg stehen.
+- **USB:** Öffnung 12 × 7 mm mit Fase außen, darüber ein durchgehender, voll dicker Rand. Nur der Metallteil des Micro-USB-Steckers steckt in der Wand, die Kunststoff-Umspritzung bleibt außen. Deshalb passen auch dicke Stecker.
 - **Ein/Aus-Schalter:** Der Schalter sitzt auf der Unterseite des LoRa-Boards, sein Schieber zeigt zur USB-Seite. Er ist durch einen Schlitz unter dem LED-Schlitz erreichbar, z. B. mit Fingernagel oder Zahnstocher. Von vorn gesehen ist **links AUS und rechts AN**.
 - **LEDs:** Lichtschlitz für PWR/CHG des LoRa-Boards.
 - **Akku:** steht hochkant im eigenen Fach auf der Pin-40-Seite, wohin auch der Akkustecker zeigt. Ein Steg im Deckel hält ihn unten.
@@ -81,7 +81,7 @@ Alle Maße stehen oben im Skript (in mm). Häufig gebraucht:
 | Parameter | Wofür |
 |---|---|
 | `FIT` | Spiel des Deckels: größer, wenn er klemmt (z. B. 0,3), kleiner, wenn er locker sitzt |
-| `USB_OPEN_W`, `USB_OPEN_H` | Größe der USB-Öffnung |
+| `USB_OPEN_W`, `USB_OPEN_H`, `USB_RIM` | Größe der USB-Öffnung und Höhe des Randes darüber |
 | `PIN_BELOW`, `FEMALE_HDR` | Höhe des Platinen-Stapels, verschiebt USB, Schalter und LEDs in der Höhe |
 | `SW_SLIDER_OFF`, `SW_SLOT_DOWN`, `SW_SLOT_UP` | Lage des Schalter-Schlitzes |
 | `BAT_L`, `BAT_W`, `BAT_T`, `BAT_CLR` | Akkumaße und Spiel im Akkufach |

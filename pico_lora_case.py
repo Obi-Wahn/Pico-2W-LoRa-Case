@@ -48,12 +48,17 @@ LORA_OFFSET   = 0.6   # LoRa-Platine beginnt so weit hinter der USB-Buchsenfront
 SIDE_CLR      = 0.3   # seitliche Luft um die Platinen
 
 # --- USB-Öffnung (großzügig für dicke Stecker) ---
-USB_OPEN_W    = 13.5
-USB_OPEN_H    = 10.5
-USB_POCKET_W  = 19.0  # Außentasche: Wand dort nur noch USB_POCKET_REST dick
+# Nur der Metallteil des Micro-USB-Steckers (ca. 7 x 2 mm, 6,6 mm lang) steckt in der Wand,
+# die Kunststoff-Umspritzung bleibt außen. Darüber ein durchgehender, voll dicker Rand.
+USB_OPEN_W    = 12.0
+USB_OPEN_H    = 7.0
+USB_CHAMFER   = 0.8   # Fase außen an der Öffnung (Einführhilfe)
+USB_RIM       = 2.5   # Höhe des durchgehenden Randes über der Öffnung
+USB_POCKET    = False # Außentasche (Wand um die Buchse ausgedünnt), nur für ungewöhnlich kurze Stecker
+USB_POCKET_W  = 19.0
 USB_POCKET_H  = 15.0
 USB_POCKET_REST = 1.0
-USB_OPEN_TOP  = True  # Öffnung als U nach oben offen, der Deckel schließt sie (kein dünner Steg)
+USB_OPEN_TOP  = False # Alternative: Öffnung als U nach oben offen, der Deckel schließt sie
 
 # --- Akku: Waveshare 851451 (8,5 x 14 x 51 mm, gemessen inkl. Falz) ---
 BAT_L = 52.5          # Länge inkl. gefalteter Kopfseite
@@ -130,7 +135,8 @@ BAY_Y0   = DIV_Y0 + DIV_T
 BAY_W    = BAT_FOOT + BAT_CLR
 IN_W     = BAY_Y0 + BAY_W
 IN_L     = max(LORA_X1, PICO_X0 + PICO_L) + ANT_SPACE
-IN_H     = max(PICO_TOP + PICO_COMP_H + TOP_CLR, USB_CZ + USB_OPEN_H / 2 + 1.0)
+IN_H     = max(PICO_TOP + PICO_COMP_H + TOP_CLR,
+               USB_CZ + USB_OPEN_H / 2 + (1.0 if USB_OPEN_TOP else USB_RIM))
 
 OUT_L = IN_L + 2 * WALL
 OUT_W = IN_W + 2 * WALL
@@ -221,18 +227,20 @@ def make_box():
     b += box(BAY_X0 - 1.2, yc - stop_w / 2, 0, BAY_X0, yc + stop_w / 2, 3.0)
     b += box(BAY_X1, BAY_Y0 + 0.8, 0, BAY_X1 + 1.2, BAY_Y0 + BAY_W - 0.8, 6.0)
 
-    # USB-Öffnung + Außentasche (dünne Wand rund um die Buchse)
-    # Über der Öffnung blieben nur ~1 x 1 mm Wand stehen (bruchgefährdet, schwer zu drucken).
-    # Deshalb standardmäßig nach oben offen; der Deckel bildet den oberen Rand.
-    usb_top = IN_H + 3.0 if USB_OPEN_TOP else USB_CZ + USB_OPEN_H / 2
-    usb = rrect(BOARD_YC - USB_OPEN_W / 2, USB_CZ - USB_OPEN_H / 2,
-                BOARD_YC + USB_OPEN_W / 2, usb_top, 1.5)
-    usb3d = usb.extrude(WALL + 2).rotate([90, 0, 90]).translate([-WALL - 1, 0, 0])
-    b -= usb3d
-    pocket = rrect(BOARD_YC - USB_POCKET_W / 2, USB_CZ - USB_POCKET_H / 2,
-                   BOARD_YC + USB_POCKET_W / 2, USB_CZ + USB_POCKET_H / 2, 2.5)
-    pocket_depth = WALL - USB_POCKET_REST
-    b -= pocket.extrude(pocket_depth + 1).rotate([90, 0, 90]).translate([-WALL - 1, 0, 0])
+    # USB-Öffnung mit Fase außen, darüber ein durchgehender Rand (USB_RIM)
+    def yz_slab(y0, z0, y1, z1, r, x0, t):        # Rechteck in der Y-Z-Ebene, Dicke t ab x0
+        return rrect(y0, z0, y1, z1, r).extrude(t).rotate([90, 0, 90]).translate([x0, 0, 0])
+    uy0, uy1 = BOARD_YC - USB_OPEN_W / 2, BOARD_YC + USB_OPEN_W / 2
+    uz0 = USB_CZ - USB_OPEN_H / 2
+    uz1 = IN_H + 3.0 if USB_OPEN_TOP else USB_CZ + USB_OPEN_H / 2
+    b -= yz_slab(uy0, uz0, uy1, uz1, 1.5, -WALL - 1, WALL + 2)
+    if USB_CHAMFER > 0:
+        c = USB_CHAMFER
+        b -= Manifold.batch_hull([yz_slab(uy0 - c, uz0 - c, uy1 + c, uz1 + c, 1.5 + c, -WALL - 0.5, 0.5),
+                                  yz_slab(uy0, uz0, uy1, uz1, 1.5, -WALL + c, 0.01)])
+    if USB_POCKET:
+        b -= yz_slab(BOARD_YC - USB_POCKET_W / 2, USB_CZ - USB_POCKET_H / 2, BOARD_YC + USB_POCKET_W / 2,
+                     USB_CZ + USB_POCKET_H / 2, 2.5, -WALL - 1, WALL - USB_POCKET_REST + 1)
 
     # LED-Lichtschlitz in der Stirnwand (Höhe der LoRa-Oberseite)
     if LED_SLOT:
@@ -277,8 +285,9 @@ def make_lid():
     inner = rbox(FIT + lip_t, FIT + lip_t, z0 - lip_h - 1, IN_L - FIT - lip_t, IN_W - FIT - lip_t, z0 + 1,
                  max(r_in - lip_t, 0.3))
     lip = outer - inner
-    # Lippe über der USB-Öffnung aussparen
-    lip -= box(-1, BOARD_YC - USB_POCKET_W / 2, z0 - lip_h - 1, 6.5, BOARD_YC + USB_POCKET_W / 2, z0 + 0.5)
+    # Lippe nur aussparen, wenn die USB-Öffnung (oder die Tasche) bis an die Oberkante reicht
+    if USB_OPEN_TOP or (USB_POCKET and USB_CZ + USB_POCKET_H / 2 > IN_H - lip_h):
+        lip -= box(-1, BOARD_YC - USB_POCKET_W / 2, z0 - lip_h - 1, 6.5, BOARD_YC + USB_POCKET_W / 2, z0 + 0.5)
     lid += lip
 
     # Rastnasen
