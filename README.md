@@ -29,7 +29,7 @@ Außenmaße: **ca. 72 × 37 × 33 mm** (L × B × H)
 
 ## Aufbau des Gehäuses
 
-- **USB:** großzügige Öffnung mit außen ausgedünnter Wand, damit auch dicke Micro-USB-Stecker passen.
+- **USB:** großzügige, nach oben offene Öffnung mit außen ausgedünnter Wand, damit auch dicke Micro-USB-Stecker passen. Den oberen Rand bildet der Deckel; so bleibt kein dünner, bruchgefährdeter Steg stehen.
 - **Ein/Aus-Schalter:** Der Schalter sitzt auf der Unterseite des LoRa-Boards, sein Schieber zeigt zur USB-Seite. Er ist durch einen Schlitz unter dem LED-Schlitz erreichbar, z. B. mit Fingernagel oder Zahnstocher. Von vorn gesehen ist **links AUS und rechts AN**.
 - **LEDs:** Lichtschlitz für PWR/CHG des LoRa-Boards.
 - **Akku:** steht hochkant im eigenen Fach auf der Pin-40-Seite, wohin auch der Akkustecker zeigt. Ein Steg im Deckel hält ihn unten.

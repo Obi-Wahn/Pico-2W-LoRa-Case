@@ -53,6 +53,7 @@ USB_OPEN_H    = 10.5
 USB_POCKET_W  = 19.0  # Außentasche: Wand dort nur noch USB_POCKET_REST dick
 USB_POCKET_H  = 15.0
 USB_POCKET_REST = 1.0
+USB_OPEN_TOP  = True  # Öffnung als U nach oben offen, der Deckel schließt sie (kein dünner Steg)
 
 # --- Akku: Waveshare 851451 (8,5 x 14 x 51 mm, gemessen inkl. Falz) ---
 BAT_L = 52.5          # Länge inkl. gefalteter Kopfseite
@@ -221,8 +222,11 @@ def make_box():
     b += box(BAY_X1, BAY_Y0 + 0.8, 0, BAY_X1 + 1.2, BAY_Y0 + BAY_W - 0.8, 6.0)
 
     # USB-Öffnung + Außentasche (dünne Wand rund um die Buchse)
+    # Über der Öffnung blieben nur ~1 x 1 mm Wand stehen (bruchgefährdet, schwer zu drucken).
+    # Deshalb standardmäßig nach oben offen; der Deckel bildet den oberen Rand.
+    usb_top = IN_H + 3.0 if USB_OPEN_TOP else USB_CZ + USB_OPEN_H / 2
     usb = rrect(BOARD_YC - USB_OPEN_W / 2, USB_CZ - USB_OPEN_H / 2,
-                BOARD_YC + USB_OPEN_W / 2, USB_CZ + USB_OPEN_H / 2, 1.5)
+                BOARD_YC + USB_OPEN_W / 2, usb_top, 1.5)
     usb3d = usb.extrude(WALL + 2).rotate([90, 0, 90]).translate([-WALL - 1, 0, 0])
     b -= usb3d
     pocket = rrect(BOARD_YC - USB_POCKET_W / 2, USB_CZ - USB_POCKET_H / 2,
