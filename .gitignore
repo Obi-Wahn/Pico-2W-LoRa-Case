@@ -218,3 +218,17 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Claude Code: lokale Einstellungen und freigegebene Befehle (können Zugangsdaten enthalten)
+.claude/settings.local.json
+.claude/*.local.*
+CLAUDE.local.md
+
+# Zugangsdaten und Schlüssel
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+.netrc
+secrets.*
+credentials.*
