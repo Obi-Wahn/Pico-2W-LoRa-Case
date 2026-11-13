@@ -29,9 +29,8 @@ Außenmaße: **ca. 72 × 37 × 34 mm** (L × B × H)
 
 ## Aufbau des Gehäuses
 
-- **USB:** Öffnung 13,5 × 10,5 mm mit Fase außen, darüber ein durchgehender, voll dicker Rand. Die Kunststoff-Umspritzung des Steckers beginnt nur knapp 2 mm vor der Buchse und taucht in die Wand ein, deshalb ist die Öffnung so groß wie die Umspritzung plus Luft. So passen auch dicke Stecker.
-- **Ein/Aus-Schalter:** Der Schalter sitzt auf der Unterseite des LoRa-Boards, sein Schieber zeigt zur USB-Seite. Er ist durch einen Schlitz unter dem LED-Schlitz erreichbar, z. B. mit Fingernagel oder Zahnstocher. Von vorn gesehen ist **links AUS und rechts AN**.
-- **LEDs:** Lichtschlitz für PWR/CHG des LoRa-Boards.
+- **USB:** Öffnung 11,5 × 8,6 mm mit Fase außen, darüber ein durchgehender, voll dicker Rand. Die Kunststoff-Umspritzung des Steckers taucht etwas in die Wand ein, deshalb ist die Öffnung so groß wie die Umspritzung plus 0,9 mm Luft je Seite. Ausgelegt für das offizielle Raspberry-Pi-Micro-USB-Kabel (Umspritzung ca. 9,7 × 6,8 mm); für dickere Stecker `USB_PLUG_W`/`USB_PLUG_H` anpassen.
+- **LEDs und Ein/Aus-Schalter:** ein gemeinsames Fenster unter der USB-Öffnung, mit Fase außen. Oben sieht man die PWR/CHG-LEDs des LoRa-Boards, unten den Schalter auf dessen Unterseite. Sein Schieber zeigt zur USB-Seite und lässt sich mit Fingernagel oder Zahnstocher bedienen. Von vorn gesehen ist **links AUS und rechts AN**.
 - **Akku:** steht hochkant im eigenen Fach auf der Pin-40-Seite, wohin auch der Akkustecker zeigt. Ein Steg im Deckel hält ihn unten.
 - **Antenne:** Die SMA-Buchse sitzt seitlich versetzt über dem Akku-Ende. Das steife Stück aus Mutter und Crimphülse (gut 12 mm) läuft so an den Platinen vorbei, und das Kabel kann weich umbiegen.
 - **Halt der Platinen:** Die LoRa-Platine liegt auf Stegen auf. Vier Zapfen im Deckel greifen in die Befestigungslöcher des Pico und fixieren den Stapel.
@@ -80,9 +79,9 @@ Alle Maße stehen oben im Skript (in mm). Häufig gebraucht:
 | Parameter | Wofür |
 |---|---|
 | `FIT` | Spiel des Deckels: größer, wenn er klemmt (z. B. 0,3), kleiner, wenn er locker sitzt |
-| `USB_OPEN_W`, `USB_OPEN_H`, `USB_RIM` | Größe der USB-Öffnung (muss die Stecker-Umspritzung durchlassen) und Höhe des Randes darüber |
+| `USB_PLUG_W`, `USB_PLUG_H`, `USB_CLEAR`, `USB_RIM` | Maße der Stecker-Umspritzung, Luft je Seite und Höhe des Randes über der USB-Öffnung |
 | `PIN_BELOW`, `FEMALE_HDR` | Höhe des Platinen-Stapels, verschiebt USB, Schalter und LEDs in der Höhe |
-| `SW_SLIDER_OFF`, `SW_SLOT_DOWN`, `SW_SLOT_UP` | Lage des Schalter-Schlitzes |
+| `FRONT_WINDOW`, `FW_Y0`, `FW_Y1`, `FW_TOP`, `SW_SLOT_DOWN` | Fenster für LEDs und Schalter (seitliche Lage, Oberkante, Unterkante) |
 | `BAT_L`, `BAT_W`, `BAT_T`, `BAT_CLR` | Akkumaße und Spiel im Akkufach |
 | `SMA_HOLE_D`, `SMA_RIGID`, `ANT_SPACE` | Antennenbuchse und Platz am Antennen-Ende |
 | `CABLE_SPOOL` | optionale Kabelspule im Deckel (Standard: aus; nur für deutlich längere Antennenkabel) |
