@@ -77,7 +77,7 @@ SMA_ABOVE_BAT = 3.0   # Luft zwischen Crimphülse und Akku-Oberkante
 ANT_SPACE    = 15.0   # Platz zwischen Platinen-Ende und Antennenwand
 
 # Kabelspule im Deckel: das lange IPEX-SMA-Kabel wird um einen ovalen Kern gewickelt
-CABLE_SPOOL  = True
+CABLE_SPOOL  = False  # aus: das mitgelieferte Pigtail ist zu kurz dafür, ein lockerer Bogen genügt
 SPOOL_H      = 3.4    # Kernhöhe unter dem Deckel
 SPOOL_WALL   = 1.2    # Wandstärke des Kerns
 SPOOL_CH     = 2.4    # Kanalbreite zwischen Kern und Deckel-Lippe

@@ -1,6 +1,6 @@
 # Pico-2W-LoRa-Case
 
-3D-druckbares Gehäuse für einen **Raspberry Pi Pico 2 W** mit dem **Waveshare Pico-LoRa-SX1262** und LiPo-Akku. Es hat Öffnungen für USB, Ein/Aus-Schalter, Status-LEDs und eine SMA-Antennenbuchse sowie eine Kabelspule im Deckel für das lange Antennenkabel.
+3D-druckbares Gehäuse für einen **Raspberry Pi Pico 2 W** mit dem **Waveshare Pico-LoRa-SX1262** und LiPo-Akku. Es hat Öffnungen für USB, Ein/Aus-Schalter, Status-LEDs und eine SMA-Antennenbuchse.
 
 Das Gehäuse ist **parametrisch** in Python modelliert. Maße ändern, Skript ausführen, fertig sind die neuen STL-Dateien.
 
@@ -34,7 +34,6 @@ Außenmaße: **ca. 72 × 37 × 34 mm** (L × B × H)
 - **LEDs:** Lichtschlitz für PWR/CHG des LoRa-Boards.
 - **Akku:** steht hochkant im eigenen Fach auf der Pin-40-Seite, wohin auch der Akkustecker zeigt. Ein Steg im Deckel hält ihn unten.
 - **Antenne:** Die SMA-Buchse sitzt seitlich versetzt über dem Akku-Ende. Das steife Stück aus Mutter und Crimphülse (gut 12 mm) läuft so an den Platinen vorbei, und das Kabel kann weich umbiegen.
-- **Kabelspule im Deckel:** Auf den ovalen Kern mit Haltelaschen werden 1–2 Windungen des Antennenkabels gewickelt.
 - **Halt der Platinen:** Die LoRa-Platine liegt auf Stegen auf. Vier Zapfen im Deckel greifen in die Befestigungslöcher des Pico und fixieren den Stapel.
 - **Deckel:** wird gesteckt und rastet mit zwei kleinen Nasen ein.
 
@@ -63,7 +62,7 @@ Kein Filament mit Carbon- oder Metallanteil verwenden, das kann das Funksignal d
 3. Den Akku hochkant ins Akkufach stellen, das Kabelende zur USB-Seite.
 4. Den Platinen-Stapel einsetzen, die USB-Buchse an die USB-Öffnung. Das Akkukabel läuft dabei zwischen dem 4. und 5. Pin (vom USB-Ende gezählt) der Pin-40-Reihe durch, am Platinenrand entlang nach vorn und quer zum Akku-Kopf. Überschüssiges Kabel vor dem Akku einfalten (siehe Skizze unten).
 5. Die SMA-Buchse in das Loch an der Antennen-Seite schrauben, Mutter innen.
-6. Das Antennenkabel hinter der Crimphülse nach oben biegen und 1–2-mal um die Spule im Deckel wickeln.
+6. Das Antennenkabel in einem lockeren Bogen über den Pico legen, **nicht über die vier Befestigungslöcher**, dort drücken die Zapfen des Deckels auf die Platine.
 7. Den Deckel vom Antennen-Ende her zuklappen und einrasten.
 
 ![Verlauf des Akkukabels](bilder/akkukabel.png)
@@ -86,7 +85,7 @@ Alle Maße stehen oben im Skript (in mm). Häufig gebraucht:
 | `SW_SLIDER_OFF`, `SW_SLOT_DOWN`, `SW_SLOT_UP` | Lage des Schalter-Schlitzes |
 | `BAT_L`, `BAT_W`, `BAT_T`, `BAT_CLR` | Akkumaße und Spiel im Akkufach |
 | `SMA_HOLE_D`, `SMA_RIGID`, `ANT_SPACE` | Antennenbuchse und Platz am Antennen-Ende |
-| `CABLE_SPOOL` | Kabelspule im Deckel ein/aus, z. B. bei einem kurzen Pigtail (5–8 cm) |
+| `CABLE_SPOOL` | optionale Kabelspule im Deckel (Standard: aus; nur für deutlich längere Antennenkabel) |
 | `WALL`, `FLOOR`, `LID_T` | Wand-, Boden- und Deckelstärke |
 
 Das Skript enthält außerdem Platzhalter-Modelle aller Bauteile (`make_dummies()`). Damit lässt sich nach Änderungen prüfen, ob irgendwo etwas kollidiert.
