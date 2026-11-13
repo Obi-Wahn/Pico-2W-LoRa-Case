@@ -77,7 +77,7 @@ SMA_ABOVE_BAT = 3.0   # Luft zwischen Crimphülse und Akku-Oberkante
 ANT_SPACE    = 15.0   # Platz zwischen Platinen-Ende und Antennenwand
 
 # Kabelspule im Deckel: das lange IPEX-SMA-Kabel wird um einen ovalen Kern gewickelt
-CABLE_SPOOL  = True
+CABLE_SPOOL  = False  # aus: das mitgelieferte Pigtail ist zu kurz dafür, ein lockerer Bogen genügt
 SPOOL_H      = 3.4    # Kernhöhe unter dem Deckel
 SPOOL_WALL   = 1.2    # Wandstärke des Kerns
 SPOOL_CH     = 2.4    # Kanalbreite zwischen Kern und Deckel-Lippe
@@ -96,8 +96,11 @@ SW_BODY_Y0, SW_BODY_Y1 = 2.5, 11.9   # Schaltergehäuse quer, ab Pin-1-Rand
 SW_BODY_X0, SW_BODY_X1 = 1.45, 4.4   # Schaltergehäuse längs, ab LoRa-Kante
 SW_BODY_H       = 1.8   # Höhe unter der Platine (geschätzt)
 SW_SLOT_MARGIN  = 0.8   # Luft im Schlitz links/rechts
-SW_SLOT_DOWN    = 2.6   # Schlitz reicht so weit unter die LoRa-Platine ...
-SW_SLOT_UP      = 0.15  # ... und endet so knapp darunter
+# Der Schieber sitzt direkt unter der LoRa-Platine (Mitte ca. 0,6 mm darunter, am Druck gemessen).
+# Der Schlitz liegt deshalb mittig um den Schieber und reicht bis vor die Platinenkante hinauf,
+# damit oben Platz zum Ansetzen bleibt.
+SW_SLOT_DOWN    = 1.8   # Schlitz reicht so weit unter die Unterseite der LoRa-Platine ...
+SW_SLOT_UP      = -0.6  # ... und endet oben so weit darüber (negativ = über der Unterseite)
 SW_SLOT_REST    = 1.0   # Wand um den Schlitz außen auf 1 mm ausgedünnt (Fingernagel)
 
 # --- Akkubuchse PH1.25 (Unterseite; Stecker zeigt zur Pin-40-Seite -> Akku liegt dort) ---
@@ -254,7 +257,7 @@ def make_box():
         # Außen trichterförmig ausgedünnt, damit der Fingernagel an den Schieber kommt
         d = WALL - SW_SLOT_REST
         inner = box(-WALL + d - 0.01, y0, z0, -WALL + d, y1, z1)
-        outer = box(-WALL - 0.5, y0 - d - 0.6, z0 - d - 0.6, -WALL - 0.49, y1 + d + 0.6, z1 + 0.3)
+        outer = box(-WALL - 0.5, y0 - d - 0.6, z0 - d - 0.6, -WALL - 0.49, y1 + d + 0.6, z1)
         b -= Manifold.batch_hull([inner, outer])
 
     # Rast-Mulden für die Deckel-Nasen
