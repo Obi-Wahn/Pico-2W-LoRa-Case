@@ -48,14 +48,17 @@ LORA_OFFSET   = 0.6   # LoRa-Platine beginnt so weit hinter der USB-Buchsenfront
 SIDE_CLR      = 0.3   # seitliche Luft um die Platinen
 
 # --- USB-Öffnung (großzügig für dicke Stecker) ---
-# Die Kunststoff-Umspritzung des Steckers beginnt nur ~1,7 mm vor der Buchse (an deinem Foto
-# gemessen, Umspritzung 11,7 mm breit) und taucht damit in die Wand ein. Die Öffnung ist deshalb
-# so groß wie die Umspritzung plus Luft und geht durch die ganze Wand; darüber bleibt ein
-# durchgehender, voll dicker Rand stehen.
-USB_OPEN_W    = 13.5
-USB_OPEN_H    = 10.5
+# Die Kunststoff-Umspritzung des Steckers beginnt kurz vor der Buchse und taucht etwas in die
+# Wand ein. Die Öffnung ist deshalb so groß wie die Umspritzung plus Luft und geht durch die
+# ganze Wand; darüber bleibt ein durchgehender, voll dicker Rand stehen.
+# Umspritzung des Raspberry-Pi-Kabels an Fotos gemessen: ca. 9,7 x 6,8 mm.
+USB_PLUG_W    = 9.7
+USB_PLUG_H    = 6.8
+USB_CLEAR     = 0.9   # Luft je Seite (Messungenauigkeit + Lage der Platinen)
+USB_OPEN_W    = USB_PLUG_W + 2 * USB_CLEAR   # 11,5 mm
+USB_OPEN_H    = USB_PLUG_H + 2 * USB_CLEAR   # 8,6 mm
 USB_CHAMFER   = 0.6   # Fase außen an der Öffnung (Einführhilfe)
-USB_RIM       = 2.0   # Höhe des durchgehenden Randes über der Öffnung (volle Wandstärke)
+USB_RIM       = 2.9   # Höhe des durchgehenden Randes über der Öffnung (Gehäusehöhe bleibt gleich)
 USB_PLUG_GAP  = 1.7   # sichtbares Metall zwischen Buchse und Umspritzung (für die Prüfung)
 
 # --- Akku: Waveshare 851451 (8,5 x 14 x 51 mm, gemessen inkl. Falz) ---
@@ -111,6 +114,14 @@ CABLE_X0, CABLE_X1 = 9.9, 11.6 # Kabel geht zwischen 4. und 5. Pin (ab USB-Ende)
 
 LED_SLOT      = True  # Lichtschlitz für PWR/CHG-LEDs (Pin-1-Seite, ca. 4 mm vom Rand)
 LED_Y         = 4.0
+
+# Gemeinsames Fenster für LEDs und Schalter statt zwei getrennter Schlitze:
+# reicht vom Schalter unter der LoRa-Platine bis über die LEDs auf ihr.
+FRONT_WINDOW  = True
+FW_Y0, FW_Y1  = 3.0, 9.8   # quer, ab Pin-1-Rand (LEDs ca. 3,5–7,5, Schalter-Schieber 4,1–9,8)
+FW_TOP        = 2.5        # Oberkante über der LoRa-Oberseite (Blick auf die LEDs)
+FW_CHAMFER    = 1.0        # Fase außen rundum (Wand dort dünner, Fingernagel kommt an den Schieber)
+FW_R          = 1.0        # Eckenradius
 SNAPS         = True  # kleine Rastnasen am Deckel
 
 SEG = 64
@@ -240,8 +251,19 @@ def make_box():
         b -= Manifold.batch_hull([yz_slab(uy0 - c, uz0 - c, uy1 + c, uz1 + c, 1.5 + c, -WALL - 0.5, 0.5),
                                   yz_slab(uy0, uz0, uy1, uz1, 1.5, -WALL + c, 0.01)])
 
+    # Gemeinsames Fenster für LEDs und Schalter (ersetzt die beiden einzelnen Schlitze)
+    if FRONT_WINDOW:
+        def yz_slab(y0, z0, y1, z1, r, x0, t):
+            return rrect(y0, z0, y1, z1, r).extrude(t).rotate([90, 0, 90]).translate([x0, 0, 0])
+        wy0, wy1 = BOARD_Y0 + FW_Y0, BOARD_Y0 + FW_Y1
+        wz0, wz1 = LORA_Z - SW_SLOT_DOWN, LORA_Z + LORA_PCB + FW_TOP
+        b -= yz_slab(wy0, wz0, wy1, wz1, FW_R, -WALL - 1, WALL + 1.3)
+        c = FW_CHAMFER
+        b -= Manifold.batch_hull([yz_slab(wy0 - c, wz0 - c, wy1 + c, wz1 + c, FW_R + c, -WALL - 0.5, 0.5),
+                                  yz_slab(wy0, wz0, wy1, wz1, FW_R, -WALL + c, 0.01)])
+
     # LED-Lichtschlitz in der Stirnwand (Höhe der LoRa-Oberseite)
-    if LED_SLOT:
+    if LED_SLOT and not FRONT_WINDOW:
         b -= box(-WALL - 1, BOARD_Y0 + LED_Y - 3.5, LORA_Z + LORA_PCB + 0.3, 0.5,
                  BOARD_Y0 + LED_Y + 3.5, LORA_Z + LORA_PCB + 2.8)
 
@@ -249,7 +271,7 @@ def make_box():
     b -= cyl(IN_L - 1, SMA_Y, SMA_Z, WALL + 2, SMA_HOLE_D, axis="x")
 
     # Schlitz für den Schiebeschalter in der Stirnwand (Höhe Schieber, unter der LoRa-Platine)
-    if SWITCH_SLOT:
+    if SWITCH_SLOT and not FRONT_WINDOW:
         y0 = BOARD_Y0 + SW_SLIDER_OFF - SW_TRAVEL - SW_SLIDER_W / 2 - SW_SLOT_MARGIN
         y1 = BOARD_Y0 + SW_SLIDER_OFF + SW_SLIDER_W / 2 + SW_SLOT_MARGIN
         z0, z1 = LORA_Z - SW_SLOT_DOWN, LORA_Z - SW_SLOT_UP
@@ -391,10 +413,11 @@ def make_dummies():
     d["ipex"] = box(LORA_X0 + 46.2, BOARD_Y0 + 3.6, LORA_Z + LORA_PCB, LORA_X0 + 49.2,
                     BOARD_Y0 + 6.6, LORA_Z + LORA_PCB + 1.5)
     # typischer Micro-USB-Stecker (Umspritzung 12 x 9 mm)
-    # Micro-USB-Stecker: Metall bis zur Buchse, Umspritzung (dick angenommen: 12 x 9 mm) davor
+    # Micro-USB-Stecker: Metall bis zur Buchse, Umspritzung (gemessene Größe) davor
     xm = USB_FACE_X - USB_PLUG_GAP
     d["usb_plug"] = (box(xm, BOARD_YC - 3.5, USB_CZ - 0.9, USB_FACE_X, BOARD_YC + 3.5, USB_CZ + 0.9)
-                     + box(-25, BOARD_YC - 6, USB_CZ - 4.5, xm, BOARD_YC + 6, USB_CZ + 4.5))
+                     + box(-25, BOARD_YC - USB_PLUG_W / 2, USB_CZ - USB_PLUG_H / 2, xm,
+                           BOARD_YC + USB_PLUG_W / 2, USB_CZ + USB_PLUG_H / 2))
     return d
 
 
